@@ -1,0 +1,189 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<title></title>
+</head>
+
+<body>
+
+<h1>Linux Core Kernel Commentary Readme</h1>
+
+<ul>
+    <li><a
+        href="LinuxCore/linux-0.01">linux-0.01</a>
+        The original Linux kernel distribution, dating from 1991,
+        for historical interest. </li>
+    <li><a
+        href="LinuxCore/linux-2.2.5">linux-2.2.5</a>
+        The complete distribution of the version of the kernel
+        code used in this book. </li>
+    <li><a
+        href="LinuxCore/linux-2.2.10">linux-2.2.10</a>
+        The latest stable kernel at the time the CD was prepared.
+    </li>
+    <li><a
+        href="LinuxCore/linux-2.3.12">linux-2.3.12</a>
+        The latest development kernel at the time the CD was
+        prepared. </li>
+    <li><a href="LinuxCore/lckc">lckc_code</a>
+        All of the code included in this book in a single large
+        file with the lines numbered--exactly as it appears in
+        the first part of this book. </li>
+    <li><a href="LinuxCore/lckc">lckc-find-line.el</a>
+        An Emacs Lisp file that defines a simple Emacs Lisp
+        function, lckc-find-line, which can make it easier to
+        find a line of code in lckc_code given the line number.
+        To use it: </li>
+</ul>
+
+<ol>
+    <li>Copy the contents of lckc-find-line.el into your .emacs
+        file. </li>
+    <li>In a new Emacs (one that has read the updated .emacs
+        file), open lckc_code, then type the following: <pre>Esc x lckc-find-line
+</pre>
+        <p>and type Return. </p>
+    </li>
+    <li>Emacs prompts you for the line number. Type in the line
+        number, followed by Return. Emacs jumps to the given
+        line. (Note to Emacs aficionados: This is not the same as
+        <strong>goto-line</strong>, because there are lines in
+        the file that don't have line numbers.) </li>
+</ol>
+
+<h3>Tags Files</h3>
+
+<p>Except for the version 0.01 kernel, I've added tags files to
+all of the kernel distributions. Various editors can use tags
+files to jump directly to a function or variable definition, to
+perform intelligent searches through a set of source files, and
+so on. </p>
+
+<p>Inside each of the 2.x distribution directories, you'll find a
+file named TAGS.all, which was built by running the etags program
+over every source file in the distribution. There are also files
+named TAGS.alpha, TAGS.arm, TAGS.i386, and so on; each of these
+was built by running etags on the code specific to a single port
+of the kernel and all of the architecture-independent code. For
+instance, if you're interested in searching both the
+architecture-independent code and the i386-specific (that is,
+Intel-specific) code, use TAGS.i386. </p>
+
+<p>The files that start with &quot;TAGS&quot; are Emacs-specific.
+The vi-specific versions of the same files have the same names,
+except that the files are named "vitags" instead of "TAGS"
+(e.g., use&quot;vitags.i386&quot; for vi, &quot;TAGS.i386&quot; for Emacs). </p>
+
+<h3>Using Tags Files In Emacs</h3>
+
+<p>In Emacs (my editor of choice), you can jump to the definition
+of the <b>PAGE_SIZE</b> macro with the following procedure: </p>
+
+<ol>
+    <li>Type <pre>Esc .
+</pre>
+        <p>(that is, type the Escape key followed by a period). </p>
+    </li>
+    <li>Emacs prompts for the tag to locate. Type <b>PAGE_SIZE</b>
+        and hit Return. </li>
+    <li>Emacs prompts for the location of the tags file. Type in
+        the path to the tags file and hit Return. </li>
+</ol>
+
+<p>That's it--Emacs opens the correct source file and places the
+cursor on the line where <b>PAGE_SIZE</b> is defined. After that,
+if you search for another tag, it's the same procedure, except
+that Emacs doesn't prompt you for the tags file again. It assumes
+you want to keep using the tags file until you tell it otherwise
+with the <strong>visit-tags-table</strong> command. </p>
+
+<p>Emacs can also search for all occurrences of a tag: </p>
+
+<ol>
+    <li>Type <pre>Esc x tags-search
+</pre>
+        <p>followed by Return. </p>
+    </li>
+    <li>Emacs prompts for the tag to seek. Type in the tag,
+        followed by Return. </li>
+    <li>Emacs locates the first occurrence of the tag (not
+        necessarily its definition), opens the source file, and
+        places the cursor just after the tag. </li>
+    <li>To search for the next occurrence of the tag, type <pre>Esc ,
+</pre>
+        <p>(that is, the Escape key followed by a comma). You can
+        do this repeatedly; Emacs will beep when there are no
+        more occurrences of the tag. </p>
+    </li>
+</ol>
+
+<p>The <strong>tags-search </strong>command actually searches all
+text in the files that were used to build the tags file, even
+text in comments. What's more, it searches for a regular
+expression, not just literal text. Consult Emacs's online
+documentation for more information about Emacs regular
+expressions. </p>
+
+<h3>Using Tags Files In Vi</h3>
+
+<ol>
+    <li>Tell vi to load the tags file: <pre>:set tags=tagfilename
+</pre>
+        <p>Of course, you should replace <strong><i>tagfilename</i></strong>
+        with the name of the tags file you want to use. Don't
+        forget to include the path to the file, if necessary
+        (that is, if the tags file isn't in the directory from
+        which you started vi). </p>
+        <p>To find the <b>PAGE_SIZE</b> macro, type the
+        following: </p>
+        <pre>:ta PAGE_SIZE
+</pre>
+    </li>
+</ol>
+
+<p>As you'd expect, once the tags file is loaded, you don't need
+to repeat Step 1 every time. </p>
+
+<p>Both Emacs and vi have more sophisticated tags-related
+functions, which you can learn about by reading the editors'
+documentation. </p>
+
+<h1>Technical Support From The Coriolis Group </h1>
+
+<p>Technical support is available for installation-related
+problems from 8 a.m. to 5 p.m., Mountain Standard Time, Monday
+through Friday. </p>
+
+<p>Phone: 800-410-0192</p>
+
+<p>Fax: 480-483-0193</p>
+
+<p>Email: techsupport@coriolis.com</p>
+
+<p>Web: www.coriolis.com</p>
+
+<p>Please send written inquiries to: </p>
+
+<p>The Coriolis Group</p>
+
+<p>14455 N. Hayden Rd.</p>
+
+<p>Suite 220</p>
+
+<p>Scottsdale, AZ 85260</p>
+
+<h1>Limits Of Liability And Disclaimer Of Warranty </h1>
+
+<p>Although the author and publisher have taken every precaution
+when preparing this disk, they make no expressed or implied
+warranty of any kind and assume no responsibility for errors or
+omissions. No liability is assumed for incidental or
+consequential damages in connection with or arising out of the
+use of the information, exams, or programs contained herein. The
+author and publisher do not guarantee any level of performance or
+test proficiency as a result of using the information and
+programs contained on this CD-ROM.</p>
+</body>
+</html>
