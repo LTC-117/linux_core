@@ -36,24 +36,25 @@ static unsigned short mem_map [ PAGING_PAGES ] = {0,};
  */
 unsigned long get_free_page(void)
 {
-register unsigned long __res asm("ax");
+    register unsigned long __res asm("ax");
 
-__asm__("std ; repne ; scasw\n\t"
-	"jne 1f\n\t"
-	"movw $1,2(%%edi)\n\t"
-	"sall $12,%%ecx\n\t"
-	"movl %%ecx,%%edx\n\t"
-	"addl %2,%%edx\n\t"
-	"movl $1024,%%ecx\n\t"
-	"leal 4092(%%edx),%%edi\n\t"
-	"rep ; stosl\n\t"
-	"movl %%edx,%%eax\n"
-	"1:"
-	:"=a" (__res)
-	:"0" (0),"i" (LOW_MEM),"c" (PAGING_PAGES),
-	"D" (mem_map+PAGING_PAGES-1)
-	:"di","cx","dx");
-return __res;
+    __asm__("std ; repne ; scasw\n\t"
+        "jne 1f\n\t"
+        "movw $1,2(%%edi)\n\t"
+        "sall $12,%%ecx\n\t"
+        "movl %%ecx,%%edx\n\t"
+        "addl %2,%%edx\n\t"
+        "movl $1024,%%ecx\n\t"
+        "leal 4092(%%edx),%%edi\n\t"
+        "rep ; stosl\n\t"
+        "movl %%edx,%%eax\n"
+        "1:"
+        :"=a" (__res)
+        :"0" (0),"i" (LOW_MEM),"c" (PAGING_PAGES),
+        "D" (mem_map+PAGING_PAGES-1)
+        :"di","cx","dx");
+
+    return __res;
 }
 
 /*
@@ -86,12 +87,12 @@ int free_page_tables(unsigned long from,unsigned long size)
 	if (!from)
 		panic("Trying to free up swapper memory space");
 	size = (size + 0x3fffff) >> 22;
-	dir = (unsigned long *) ((from>>20) & 0xffc); /* _pg_dir = 0 */
-	for ( ; size-->0 ; dir++) {
+	dir = (unsigned long *) ((from >> 20) & 0xffc); /* _pg_dir = 0 */
+	for ( ; size-- > 0; dir++) {
 		if (!(1 & *dir))
 			continue;
 		pg_table = (unsigned long *) (0xfffff000 & *dir);
-		for (nr=0 ; nr<1024 ; nr++) {
+		for (nr = 0; nr < 1024; nr++) {
 			if (1 & *pg_table)
 				free_page(0xfffff000 & *pg_table);
 			*pg_table = 0;
@@ -123,18 +124,18 @@ int free_page_tables(unsigned long from,unsigned long size)
  */
 int copy_page_tables(unsigned long from,unsigned long to,long size)
 {
-	unsigned long * from_page_table;
-	unsigned long * to_page_table;
+	unsigned long *from_page_table;
+	unsigned long *to_page_table;
 	unsigned long this_page;
-	unsigned long * from_dir, * to_dir;
+	unsigned long *from_dir, *to_dir;
 	unsigned long nr;
 
-	if ((from&0x3fffff) || (to&0x3fffff))
+	if ((from & 0x3fffff) || (to & 0x3fffff))
 		panic("copy_page_tables called with wrong alignment");
-	from_dir = (unsigned long *) ((from>>20) & 0xffc); /* _pg_dir = 0 */
-	to_dir = (unsigned long *) ((to>>20) & 0xffc);
+	from_dir = (unsigned long *) ((from >> 20) & 0xffc); /* _pg_dir = 0 */
+	to_dir = (unsigned long *) ((to >> 20) & 0xffc);
 	size = ((unsigned) (size+0x3fffff)) >> 22;
-	for( ; size-->0 ; from_dir++,to_dir++) {
+	for ( ; size-- > 0; from_dir++, to_dir++) {
 		if (1 & *to_dir)
 			panic("copy_page_tables: already exist");
 		if (!(1 & *from_dir))
@@ -144,7 +145,7 @@ int copy_page_tables(unsigned long from,unsigned long to,long size)
 			return -1;	/* Out of memory, see freeing */
 		*to_dir = ((unsigned long) to_page_table) | 7;
 		nr = (from==0)?0xA0:1024;
-		for ( ; nr-- > 0 ; from_page_table++,to_page_table++) {
+		for ( ; nr-- > 0; from_page_table++, to_page_table++) {
 			this_page = *from_page_table;
 			if (!(1 & this_page))
 				continue;
@@ -176,22 +177,22 @@ unsigned long put_page(unsigned long page,unsigned long address)
 
 	if (page < LOW_MEM || page > HIGH_MEMORY)
 		printk("Trying to put page %p at %p\n",page,address);
-	if (mem_map[(page-LOW_MEM)>>12] != 1)
+	if (mem_map[(page-LOW_MEM) >> 12] != 1)
 		printk("mem_map disagrees with %p at %p\n",page,address);
-	page_table = (unsigned long *) ((address>>20) & 0xffc);
-	if ((*page_table)&1)
+	page_table = (unsigned long *) ((address >> 20) & 0xffc);
+	if ((*page_table) & 1)
 		page_table = (unsigned long *) (0xfffff000 & *page_table);
 	else {
-		if (!(tmp=get_free_page()))
+		if (!(tmp = get_free_page()))
 			return 0;
 		*page_table = tmp|7;
 		page_table = (unsigned long *) tmp;
 	}
-	page_table[(address>>12) & 0x3ff] = page | 7;
+	page_table[(address >> 12) & 0x3ff] = page | 7;
 	return page;
 }
 
-void un_wp_page(unsigned long * table_entry)
+void un_wp_page(unsigned long *table_entry)
 {
 	unsigned long old_page,new_page;
 
@@ -200,12 +201,12 @@ void un_wp_page(unsigned long * table_entry)
 		*table_entry |= 2;
 		return;
 	}
-	if (!(new_page=get_free_page()))
+	if (!(new_page = get_free_page()))
 		do_exit(SIGSEGV);
 	if (old_page >= LOW_MEM)
 		mem_map[MAP_NR(old_page)]--;
 	*table_entry = new_page | 7;
-	copy_page(old_page,new_page);
+	copy_page(old_page, new_page);
 }	
 
 /*
@@ -216,8 +217,8 @@ void un_wp_page(unsigned long * table_entry)
 void do_wp_page(unsigned long error_code,unsigned long address)
 {
 	un_wp_page((unsigned long *)
-		(((address>>10) & 0xffc) + (0xfffff000 &
-		*((unsigned long *) ((address>>20) &0xffc)))));
+		(((address >> 10) & 0xffc) + (0xfffff000 &
+		*((unsigned long *) ((address >> 20) & 0xffc)))));
 
 }
 
@@ -225,10 +226,10 @@ void write_verify(unsigned long address)
 {
 	unsigned long page;
 
-	if (!( (page = *((unsigned long *) ((address>>20) & 0xffc)) )&1))
+	if (!((page = *((unsigned long *) ((address >> 20) & 0xffc))) & 1))
 		return;
 	page &= 0xfffff000;
-	page += ((address>>10) & 0xffc);
+	page += ((address >> 10) & 0xffc);
 	if ((3 & *(unsigned long *) page) == 1)  /* non-writeable, present */
 		un_wp_page((unsigned long *) page);
 	return;
@@ -238,27 +239,27 @@ void do_no_page(unsigned long error_code,unsigned long address)
 {
 	unsigned long tmp;
 
-	if (tmp=get_free_page())
-		if (put_page(tmp,address))
+	if (tmp = get_free_page())
+		if (put_page(tmp, address))
 			return;
 	do_exit(SIGSEGV);
 }
 
 void calc_mem(void)
 {
-	int i,j,k,free=0;
-	long * pg_tbl;
+	int i, j, k, free = 0;
+	long *pg_tbl;
 
-	for(i=0 ; i<PAGING_PAGES ; i++)
+	for (i = 0 ;i < PAGING_PAGES; i++)
 		if (!mem_map[i]) free++;
-	printk("%d pages free (of %d)\n\r",free,PAGING_PAGES);
-	for(i=2 ; i<1024 ; i++) {
-		if (1&pg_dir[i]) {
-			pg_tbl=(long *) (0xfffff000 & pg_dir[i]);
-			for(j=k=0 ; j<1024 ; j++)
-				if (pg_tbl[j]&1)
+	printk("%d pages free (of %d)\n\r", free, PAGING_PAGES);
+	for (i = 2 ;i < 1024; i++) {
+		if (1 & pg_dir[i]) {
+			pg_tbl = (long *) (0xfffff000 & pg_dir[i]);
+			for (j = k = 0; j < 1024; j++)
+				if (pg_tbl[j] & 1)
 					k++;
-			printk("Pg-dir[%d] uses %d pages\n",i,k);
+			printk("Pg-dir[%d] uses %d pages\n", i, k);
 		}
 	}
 }
