@@ -18,17 +18,17 @@ __asm__("movl %%eax,%%cr3"::"a" (0))
 
 /* these are not to be changed - thay are calculated from the above */
 #define PAGING_MEMORY (HIGH_MEMORY - LOW_MEM)
-#define PAGING_PAGES (PAGING_MEMORY/4096)
-#define MAP_NR(addr) (((addr)-LOW_MEM)>>12)
+#define PAGING_PAGES (PAGING_MEMORY / 4096)
+#define MAP_NR(addr) (((addr)-LOW_MEM) >> 12)
 
 #if (PAGING_PAGES < 10)
 #error "Won't work"
 #endif
 
 #define copy_page(from,to) \
-__asm__("cld ; rep ; movsl"::"S" (from),"D" (to),"c" (1024):"cx","di","si")
+__asm__("cld ; rep ; movsl"::"S" (from),"D" (to), "c" (1024):"cx", "di", "si")
 
-static unsigned short mem_map [ PAGING_PAGES ] = {0,};
+static unsigned short mem_map [ PAGING_PAGES ] = {0, };
 
 /*
  * Get physical address of first (actually last :-) free page, and mark it
@@ -63,13 +63,13 @@ unsigned long get_free_page(void)
  */
 void free_page(unsigned long addr)
 {
-	if (addr<LOW_MEM) return;
-	if (addr>HIGH_MEMORY)
+	if (addr < LOW_MEM) return;
+	if (addr > HIGH_MEMORY)
 		panic("trying to free nonexistent page");
 	addr -= LOW_MEM;
 	addr >>= 12;
 	if (mem_map[addr]--) return;
-	mem_map[addr]=0;
+	mem_map[addr] = 0;
 	panic("trying to free free page");
 }
 
@@ -80,7 +80,7 @@ void free_page(unsigned long addr)
 int free_page_tables(unsigned long from,unsigned long size)
 {
 	unsigned long *pg_table;
-	unsigned long * dir, nr;
+	unsigned long *dir, nr;
 
 	if (from & 0x3fffff)
 		panic("free_page_tables called with wrong alignment");
