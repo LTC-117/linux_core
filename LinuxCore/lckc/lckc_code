@@ -16886,7 +16886,7 @@
 16837   remove_wait_queue(&wq, &__wait);                      \
 16838 } while (0)
 16839 
-16840 #define wait_event(wq, condition)                       \
+16840 #define wait_event(wq, condition)                       \ // wq -> wait queue
 16841 do {                                                    \
 16842   if (condition)                                        \
 16843     break;                                              \
@@ -24488,7 +24488,7 @@
 24410   free_uid(current);
 24411 
 24412   /* Give kmod all privileges.. */
-24413   current->uid = current->euid = current->fsuid = 0;
+24413   current->uid = current->euid = current->fsuid = 0; // 0 -> root privileges
 24414   cap_set_full(current->cap_inheritable);
 24415   cap_set_full(current->cap_effective);
 24416 
@@ -24496,7 +24496,7 @@
 24418   set_fs(KERNEL_DS);
 24419 
 24420   /* Go, go, go... */
-24421   if (execve(modprobe_path, argv, envp) < 0) {
+24421   if (execve(modprobe_path, argv, envp) < 0) { // Tries to execute modprobe
 24422     printk(KERN_ERR
 24423         "kmod: failed to exec %s -s -k %s, errno = %d\n",
 24424         modprobe_path, (char*) module_name, errno);
